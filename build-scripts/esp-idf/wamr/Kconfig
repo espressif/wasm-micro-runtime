@@ -74,4 +74,15 @@ menu "WASM Micro Runtime"
     config WAMR_ENABLE_SHARED_MEMORY
         bool "Shared memory"
         default n
+
+    menuconfig WAMR_ENABLE_APP_FRAMEWORK
+        bool "App framework"
+        default y
+
+    if WAMR_ENABLE_APP_FRAMEWORK
+
+        config WAMR_APP_THREAD_STACK_SIZE_MAX
+            int "Application thread max stack size"
+            default 131072
+    endif
 endmenu
