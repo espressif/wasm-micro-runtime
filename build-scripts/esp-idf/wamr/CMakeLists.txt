@@ -36,6 +36,12 @@ if (NOT CMAKE_BUILD_EARLY_EXPANSION)
     set (WAMR_BUILD_LIBC_BUILTIN 1)
   endif ()
 
+  if (CONFIG_WAMR_ENABLE_APP_FRAMEWORK)
+    set (WAMR_BUILD_APP_FRAMEWORK 1)
+    set (WAMR_BUILD_APP_LIST WAMR_APP_BUILD_BASE)
+    set (WAMR_APP_THREAD_STACK_SIZE_MAX ${CONFIG_WAMR_APP_THREAD_STACK_SIZE_MAX})
+  endif ()
+
   if (CONFIG_WAMR_INTERP_LOADER_MINI)
     set (WAMR_BUILD_MINI_LOADER 1)
   endif ()
@@ -70,15 +76,35 @@ if (NOT CMAKE_BUILD_EARLY_EXPANSION)
 
   set (WAMR_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../..)
   include (${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
+  include (${WAMR_ROOT_DIR}/core/shared/coap/lib_coap.cmake)
+
+  if (CONFIG_WAMR_ENABLE_APP_FRAMEWORK)
+      include (${WAMR_ROOT_DIR}/wamr-app-framework/app-framework/app_framework.cmake)
+      include (${WAMR_ROOT_DIR}/wamr-app-framework/app-mgr/app-manager/app_mgr.cmake)
+      include (${WAMR_ROOT_DIR}/wamr-app-framework/app-mgr/app-mgr-shared/app_mgr_shared.cmake)
+  endif ()
 
   list (APPEND srcs "${WAMR_RUNTIME_LIB_SOURCE}"
+                    "${APP_MGR_SOURCE}"
+                    "${WASM_APP_LIB_SOURCE_ALL}"
+                    "${NATIVE_INTERFACE_SOURCE}"
                     "${PLATFORM_SHARED_SOURCE}")
 
   set (include_dirs "${IWASM_DIR}/include"
                     "${UTILS_SHARED_DIR}"
                     "${PLATFORM_SHARED_DIR}"
                     "${PLATFORM_SHARED_DIR}/../include"
-                    "${IWASM_COMMON_DIR}")
+                    "${IWASM_COMMON_DIR}"
+                    "${LIB_COAP_DIR}/er-coap"
+                    "${LIB_COAP_DIR}/extension"
+                    "${IWASM_INTERP_DIR}")
+
+  if (CONFIG_WAMR_ENABLE_APP_FRAMEWORK)
+      list (APPEND include_dirs "${APP_MGR_SHARED_DIR}"
+                                "${__APP_MGR_DIR}"
+                                "${NATIVE_INTERFACE_DIR}"
+                                "${WASM_APP_LIBS_DIR}")
+  endif ()
 endif ()
 
 idf_component_register(SRCS ${srcs}
@@ -86,7 +112,7 @@ idf_component_register(SRCS ${srcs}
                        REQUIRES pthread lwip esp_timer
                        KCONFIG ${CMAKE_CURRENT_LIST_DIR}/Kconfig)
 
-target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
+target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format" "-Wno-type-limits")
 
 if (CONFIG_IDF_TARGET_ARCH_RISCV)
   target_compile_definitions(${COMPONENT_LIB} PUBLIC -DBUILD_TARGET_RISCV32_ILP32=1)
