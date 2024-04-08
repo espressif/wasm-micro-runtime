@@ -1,0 +1,58 @@
+stages:
+  - build
+
+.if-protected: &if-protected
+  if: '($CI_COMMIT_BRANCH =~ /^esp_based_on_v/)'
+
+.if-dev-push: &if-dev-push
+  if: '$CI_COMMIT_BRANCH !~ /^esp_based_on_v/ && ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event")'
+
+.rules:build:examples:
+  rules:
+    - <<: *if-protected
+    - <<: *if-dev-push
+
+.build_template: &build_template
+  stage: build
+  tags:
+    - build
+  image: ${IMAGE}
+  variables:
+    # Enable ccache for all build jobs. See configure_ci_environment.sh for more ccache related settings.
+    IDF_CCACHE_ENABLE: "1"
+    BATCH_BUILD: "1"
+    V: "0"
+    WARNING_STR: ""
+
+.build_examples_template: &build_examples_template
+  <<: *build_template
+  artifacts:
+    when: always
+    paths:
+      - "**/build*/*.bin"
+      # upload to s3 server to save the artifacts size
+      - "**/build*/*.map"
+      - "**/build*/*.elf"
+      - "**/build*/flasher_args.json"
+      - "**/build*/flash_project_args"
+      - "**/build*/config/sdkconfig.json"
+      - "**/build*/bootloader/*.bin"
+      - "**/build*/bootloader/*.elf"
+      - "**/build*/partition_table/*.bin"
+    expire_in: 1 week
+  variables:
+    IDF_CI_BUILD: "1"
+  script:
+    - cd $EXAMPLE_DIR
+    - idf.py -DIDF_TARGET=$IDF_TARGET build
+
+build_test:
+  extends:
+    - .build_examples_template
+    - .rules:build:examples
+  parallel:
+    matrix:
+      - IMAGE: [espressif/idf:release-v4.4, espressif/idf:release-v5.0, espressif/idf:release-v5.1, espressif/idf:release-v5.2]
+        IDF_TARGET: [esp32, esp32c3, esp32s3]
+  variables:
+    EXAMPLE_DIR: product-mini/platforms/esp-idf
