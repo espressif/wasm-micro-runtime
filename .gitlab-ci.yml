@@ -42,7 +42,10 @@ stages:
     expire_in: 1 week
   variables:
     IDF_CI_BUILD: "1"
+    EXTRA_CFLAGS: "-Werror -Werror=deprecated-declarations"
   script:
+    - export EXTRA_CFLAGS=$EXTRA_CFLAGS
+    - export EXTRA_CXXFLAGS=$EXTRA_CFLAGS
     - cd $EXAMPLE_DIR
     - idf.py -DIDF_TARGET=$IDF_TARGET build
 
