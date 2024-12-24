@@ -4,4 +4,4 @@ dependencies:
     version: "^2"
     override_path: "../../../.."
   idf:
-    version: ">=4.4"
+    version: ">=5.1"

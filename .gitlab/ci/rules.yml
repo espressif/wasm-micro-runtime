@@ -1,0 +1,17 @@
+##############
+# if anchors #
+##############
+.if-protected: &if-protected
+  if: '($CI_COMMIT_BRANCH =~ /^esp_based_on_v/)'
+
+.if-dev-push: &if-dev-push
+  if: '$CI_COMMIT_BRANCH !~ /^esp_based_on_v/ && ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event")'
+
+##################
+# Auto Generated #
+##################
+# rules for examples
+.rules:build:examples:
+  rules:
+    - <<: *if-protected
+    - <<: *if-dev-push
