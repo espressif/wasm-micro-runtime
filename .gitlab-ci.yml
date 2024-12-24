@@ -66,7 +66,7 @@ build_test_esp32:
     - .rules:build:examples
   parallel:
     matrix:
-      - IMAGE: [espressif/idf:release-v4.4, espressif/idf:release-v5.0, espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:latest]
+      - IMAGE: [espressif/idf:release-v4.4, espressif/idf:release-v5.0, espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:release-v5.3, espressif/idf:release-v5.4, espressif/idf:latest]
         IDF_TARGET: [esp32]
   variables:
     EXAMPLE_DIR: product-mini/platforms/esp-idf
@@ -77,7 +77,7 @@ build_test_esp32c3:
     - .rules:build:examples
   parallel:
     matrix:
-      - IMAGE: [espressif/idf:release-v4.4, espressif/idf:release-v5.0, espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:latest]
+      - IMAGE: [espressif/idf:release-v4.4, espressif/idf:release-v5.0, espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:release-v5.3, espressif/idf:release-v5.4, espressif/idf:latest]
         IDF_TARGET: [esp32c3]
   variables:
     EXAMPLE_DIR: product-mini/platforms/esp-idf
@@ -88,7 +88,7 @@ build_test_esp32c6:
     - .rules:build:examples
   parallel:
     matrix:
-      - IMAGE: [espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:latest]
+      - IMAGE: [espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:release-v5.3, espressif/idf:release-v5.4, espressif/idf:latest]
         IDF_TARGET: esp32c6
   variables:
     EXAMPLE_DIR: product-mini/platforms/esp-idf
@@ -99,8 +99,19 @@ build_test_esp32s3:
     - .rules:build:examples
   parallel:
     matrix:
-      - IMAGE: [espressif/idf:release-v4.4, espressif/idf:release-v5.0, espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:latest]
+      - IMAGE: [espressif/idf:release-v4.4, espressif/idf:release-v5.0, espressif/idf:release-v5.1, espressif/idf:release-v5.2, espressif/idf:release-v5.3, espressif/idf:release-v5.4, espressif/idf:latest]
         IDF_TARGET: [esp32s3]
         SDKCONFIG_DEFAULTS: sdkconfig.defaults.esp32s3.ci
+  variables:
+    EXAMPLE_DIR: product-mini/platforms/esp-idf
+
+build_test_esp32p4:
+  extends:
+    - .build_examples_template
+    - .rules:build:examples
+  parallel:
+    matrix:
+      - IMAGE: [espressif/idf:release-v5.3, espressif/idf:release-v5.4, espressif/idf:latest]
+        IDF_TARGET: [esp32p4]
   variables:
     EXAMPLE_DIR: product-mini/platforms/esp-idf
