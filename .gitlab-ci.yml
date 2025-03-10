@@ -28,10 +28,16 @@ stages:
   export EXTRA_CFLAGS=$EXTRA_CFLAGS
   export EXTRA_CXXFLAGS=$EXTRA_CFLAGS
 
-  if [ "${SDKCONFIG_DEFAULTS}" ]; then
-    idf.py -DSDKCONFIG_DEFAULTS="${SDKCONFIG_DEFAULTS}" set-target ${IDF_TARGET}
+  if [ "${IDF_TARGET}" = "esp32c5" ]; then
+    IDF_ST_CMD="idf.py --preview"
   else
-    idf.py set-target ${IDF_TARGET}
+    IDF_ST_CMD="idf.py"
+  fi
+
+  if [ "${SDKCONFIG_DEFAULTS}" ]; then
+    ${IDF_ST_CMD} -DSDKCONFIG_DEFAULTS="${SDKCONFIG_DEFAULTS}" set-target ${IDF_TARGET}
+  else
+    ${IDF_ST_CMD} set-target ${IDF_TARGET}
   fi
 
   idf.py build
@@ -113,5 +119,16 @@ build_test_esp32p4:
     matrix:
       - IMAGE: [espressif/idf:release-v5.3, espressif/idf:release-v5.4, espressif/idf:latest]
         IDF_TARGET: [esp32p4]
+  variables:
+    EXAMPLE_DIR: product-mini/platforms/esp-idf
+
+build_test_esp32c5:
+  extends:
+    - .build_examples_template
+    - .rules:build:examples
+  parallel:
+    matrix:
+      - IMAGE: [espressif/idf:release-v5.3, espressif/idf:release-v5.4, espressif/idf:latest]
+        IDF_TARGET: [esp32c5]
   variables:
     EXAMPLE_DIR: product-mini/platforms/esp-idf
