@@ -10,6 +10,8 @@
 #include "platform_api_vmcore.h"
 #include "platform_api_extension.h"
 
+#include "esp_pthread.h"
+
 typedef struct {
     thread_start_routine_t start;
     void *arg;
@@ -109,6 +111,13 @@ os_thread_create_with_prio(korp_tid *tid, thread_start_routine_t start,
 
     targ->start = start;
     targ->arg = arg;
+
+#ifdef CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM
+    esp_pthread_cfg_t default_config = esp_pthread_get_default_config();
+
+    default_config.stack_alloc_caps = MALLOC_CAP_8BIT | MALLOC_CAP_SPIRAM;
+    ESP_ERROR_CHECK(esp_pthread_set_cfg(&default_config));
+#endif
 
     if (pthread_create(tid, &tattr, os_thread_wrapper, targ) != 0) {
         pthread_attr_destroy(&tattr);
