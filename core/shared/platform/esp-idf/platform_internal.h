@@ -134,6 +134,10 @@ typedef unsigned int korp_sem;
 #define DT_SOCK DTYPE_SOCK
 #endif
 
+#define BUILTIN_LIBC_BUFFERED_PRINTF 1
+#define BUILTIN_LIBC_BUFFERED_PRINT_SIZE 128
+#define BUILTIN_LIBC_BUFFERED_PRINT_PREFIX
+
 static inline int
 os_getpagesize()
 {
